@@ -5,15 +5,12 @@ import CreateTest from './components/Dashboard/CreateTest';
 import YourTests from './components/Dashboard/YourTests';
 import Performance from './components/Dashboard/Performance';
 import Profile from './components/Dashboard/Profile';
+import { Outlet } from 'react-router-dom';
 
 function App() {
   return (<>
   <Navbar/>
-  {/* <Bottom/> */}
-  {/* <CreateTest/> */}
-  {/* <YourTests/> */}
-  {/* <Performance/> */}
-  <Profile/>
+  <Outlet/>
   </>);
 }
 

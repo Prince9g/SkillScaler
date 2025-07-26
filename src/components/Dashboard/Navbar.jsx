@@ -1,4 +1,9 @@
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+
+
 const Navbar = () => {
+    const [active,setactive] = useState("home");
   return (
     <>
       <div className="text-white bg-gradient-to-r from-zinc-800 via-zinc-700 to-zinc-800 shadow-lg border-b border-zinc-600 h-20 flex justify-between items-center font-mono p-10">
@@ -14,21 +19,21 @@ const Navbar = () => {
           </div>
         </div>
         <div className="text-lg flex gap-9">
-          <a href="/" className="hover:text-green-600">
+          <Link to="/" className={`hover:text-green-600 ${active === "home" && "text-green-600"}`} onClick={()=> setactive("home")}>
             Home
-          </a>
-          <a href="/" className="hover:text-green-600">
+          </Link>
+          <Link to="/create-test" className={`hover:text-green-600 ${active === "create-test" && "text-green-600"}`}  onClick={()=> setactive("create-test")}>
             CreateTest
-          </a>
-          <a href="/" className="hover:text-green-600">
+          </Link>
+          <Link to="/your-test" className={`hover:text-green-600 ${active === "your-test" && "text-green-600"}`} onClick={()=> setactive("your-test")}>
             YourTests
-          </a>
-          <a href="/" className="hover:text-green-600">
+          </Link>
+          <Link to="/performance" className={`hover:text-green-600 ${active === "performance" && "text-green-600"}`}  onClick={()=> setactive("performance")}>
             Performance
-          </a>
-          <a href="/" className="hover:text-green-600">
+          </Link>
+          <Link to="/profile" className={`hover:text-green-600 ${active === "profile" && "text-green-600"}`}  onClick={()=> setactive("profile")}>
             Profile
-          </a>
+          </Link>
         </div>
       </div>
     </>
