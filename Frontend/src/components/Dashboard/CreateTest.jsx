@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import Modal from 'react-modal'
+import { useNavigate } from 'react-router-dom'
 
 const CreateTest = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -8,8 +9,9 @@ const CreateTest = () => {
         numberOfQuestions: 10,
         difficulty: 'Intermediate'
     })
+    const [loading, setLoading] = useState(false)
+    const navigate = useNavigate()
 
-    // Set the app element for accessibility when component mounts
     useEffect(() => {
         Modal.setAppElement('#root')
     }, [])
@@ -22,10 +24,58 @@ const CreateTest = () => {
         }))
     }
 
-    const handleCreateTest = () => {
-        console.log('Creating test with:', formData)
-        // Add your test creation logic here
+    const handleCreateTest = async () => {
         setIsModalOpen(false)
+        setLoading(true)
+
+        const prompt = `Generate ${formData.numberOfQuestions} ${formData.topic} multiple-choice questions of ${formData.difficulty} difficulty. Format:
+
+[
+  {
+    "id": 1,
+    "question": "...",
+    "options": ["a", "b", "c", "d"],
+    "answer": "...",
+    "explanation": "..."
+  }
+]
+
+Important:
+- Return ONLY the array.
+- Do NOT include export, const, or code wrappers.
+- Do NOT wrap with backticks or code blocks.`
+
+        try {
+            const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Authorization": "Bearer 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",
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    model: "google/gemini-2.0-flash-exp:free",
+                    messages: [
+                        {
+                            role: "user",
+                            content: prompt
+                        }
+                    ]
+                })
+            })
+
+            const data = await res.json()
+            const content = data?.choices?.[0]?.message?.content || "[]"
+            const questions = JSON.parse(content)
+
+            localStorage.setItem("testQuestions", JSON.stringify(questions))
+            navigate("/test")
+        } catch (err) {
+            alert("Something went wrong while creating the test.")
+            console.error(err)
+        } finally {
+            setLoading(false)
+        }
+
         // Reset form
         setFormData({
             topic: '',
@@ -79,9 +129,9 @@ const CreateTest = () => {
                     onClick={() => setIsModalOpen(true)}
                     className="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 font-semibold text-lg shadow-lg"
                 >
-                    Create New Test
+                    {loading ? "Creating..." : "Create New Test"}
                 </button>
-                <p className="mt-4 text-sm text-gray-600">Using React-Modal Implementation</p>
+                <p className="mt-4 text-sm text-gray-600">SkillScaler - Build your Skills</p>
             </div>
 
             {/* React Modal */}
@@ -107,7 +157,7 @@ const CreateTest = () => {
                     </button>
 
                     {/* Modal Header */}
-                    <div className="text-center mb-4">
+                    <div className="text-center mb-8">
                         <div className="w-16 h-16 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
                             <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
@@ -191,7 +241,7 @@ const CreateTest = () => {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex gap-4 mt-6">
+                    <div className="flex gap-4 mt-3">
                         <button
                             onClick={closeModal}
                             className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200 font-semibold"
